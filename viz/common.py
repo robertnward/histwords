@@ -17,7 +17,28 @@ import numpy as np
 import matplotlib.pyplot as plt
 import collections
 from sklearn.manifold import TSNE
+from matplotlib import rc
+from matplotlib.font_manager import FontProperties
 
+
+#plt.rcParams['figure.dpi'] = 300
+#plt.rcParams['savefig.dpi'] = 300
+#plt.rcParams['axes.facecolor'] = 'w'
+plt.rcParams["figure.titleweight"] = 'bold'
+plt.rc('font', family='Helvetica')
+#plt.rcParams['pdf.fonttype'] = 42
+
+ALMOST_BLACK = '0.125'
+plt.rcParams['text.color'] = ALMOST_BLACK
+#plt.rcParams['axes.unicode_minus'] = False
+
+#plt.rcParams['xtick.major.pad'] = '8'
+#plt.rcParams['axes.edgecolor']  = ALMOST_BLACK
+#plt.rcParams['axes.labelcolor'] = ALMOST_BLACK
+#plt.rcParams['lines.color']     = ALMOST_BLACK
+#plt.rcParams['xtick.color']     = ALMOST_BLACK
+#plt.rcParams['ytick.color']     = ALMOST_BLACK
+#plt.rcParams['text.color']      = ALMOST_BLACK
 from representations.sequentialembedding import SequentialEmbedding
 
 def get_words():
@@ -27,8 +48,8 @@ def get_words():
 
     return WORDS
 
-CMAP_MIN=5
-def get_cmap(n, name='YlGn'):
+CMAP_MIN=6
+def get_cmap(n, name='Spectral'):
     return plt.cm.get_cmap(name, n+CMAP_MIN)
 
 # this is based on embedding.py get_time_sims
@@ -77,7 +98,7 @@ def load_embeddings(filename=None):
 
         print "THIS MIGHT TAKE A WHILE..."
 
-        embeddings = SequentialEmbedding.load(filename, range(1840, 2000, 10))
+        embeddings = SequentialEmbedding.load(filename, range(1880, 2000, 10))
         print "LOAD EMBEDDINGS TOOK %s" % (time.time() - start)
 
         EMBED_CACHE[filename] = embeddings
@@ -118,7 +139,7 @@ def select_embedding():
 
 
 def clear_figure():
-    plt.figure(figsize=(20,20))
+    plt.figure(figsize=(16,16))
     plt.clf()
 
 def fit_tsne(values):
@@ -143,7 +164,7 @@ def get_now():
 def plot_words(word1, words, fitted, cmap, sims):
     # TODO: remove this and just set the plot axes directly
     plt.scatter(fitted[:,0], fitted[:,1], alpha=0)
-    plt.suptitle("%s" % word1, fontsize=30, y=0.1)
+    plt.suptitle("%s" % word1.capitalize(), fontsize=30, y=0.1)
     plt.axis('off')
 
     annotations = []
@@ -152,19 +173,20 @@ def plot_words(word1, words, fitted, cmap, sims):
         pt = fitted[i]
 
         ww,decade = [w.strip() for w in words[i].split("|")]
-        color = cmap((int(decade) - 1840) / 10 + CMAP_MIN)
+        color = cmap((int(decade) - 1880) / 10 + CMAP_MIN)
         word = ww
-        sizing = sims[words[i]] * 30
+        sizing = sims[words[i]] * 40
 
         # word1 is the word we are plotting against
         if ww == word1 or (isArray and ww in word1):
             annotations.append((ww, decade, pt))
-            word = decade
+            word = decade #"Eugenics\n" + "(" + decade + ")"
             color = 'black'
-            sizing = 15
+            sizing = 20
+            
 
 
-        plt.text(pt[0], pt[1], word, color=color, size=int(sizing))
+        plt.text(pt[0], pt[1], word, color=color, size=int(sizing),verticalalignment='center',horizontalalignment='center')
 
     return annotations
 
@@ -173,9 +195,10 @@ def plot_annotations(annotations):
     # annotations on the graph
     annotations.sort(key=lambda w: w[1], reverse=True)
     prev = annotations[0][-1]
+    
     for ww, decade, ann in annotations[1:]:
         plt.annotate('', xy=prev, xytext=ann,
-            arrowprops=dict(facecolor='blue', shrink=0.1, alpha=0.3,width=2, headwidth=15))
+            arrowprops=dict(facecolor='black',shrink=0.2, alpha=1,width=2, headwidth=15,zorder=1))
         print prev, ann
         prev = ann
 
@@ -187,5 +210,5 @@ def savefig(name):
 
     fname = os.path.join(directory, name)
 
-    plt.savefig(fname, bbox_inches=0)
+    plt.savefig(fname, bbox_inches='tight')
 

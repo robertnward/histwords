@@ -5,7 +5,7 @@ from multiprocessing import Queue, Process
 from Queue import Empty
 from argparse import ArgumentParser
 
-from coha.cohastringutils import process_lemma_line
+from cohastringutils import process_lemma_line
 from ioutils import load_pickle, mkdir
 import pyximport
 pyximport.install(setup_args={"include_dirs": np.get_include()})

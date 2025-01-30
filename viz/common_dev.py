@@ -48,8 +48,8 @@ def get_words():
 
     return WORDS
 
-CMAP_MIN=6
-def get_cmap(n, name='magma_r'):
+CMAP_MIN=5
+def get_cmap(n, name='Spectral'):
     return plt.cm.get_cmap(name, n+CMAP_MIN)
 
 # this is based on embedding.py get_time_sims
@@ -60,17 +60,17 @@ def get_time_sims(self, word1):
     nearests = {}
     sims = {}
     for year, embed in self.embeds.iteritems():
-        nearest = []
-        nearests["%s|%s" % (word1, year)]= nearest
+        nearest = ['ethical','unethical','moral','immoral']
+        #nearests["%s|%s" % (word1, year)]= nearest
         time_sims[year] = []
 
         for sim, word in embed.closest(word1, n=15):
             ww = "%s|%s" % (word, year)
             nearest.append((sim, ww))
-            if sim > 0.3:
-                time_sims[year].append((sim, ww))
-                lookups[ww] = embed.represent(word)
-                sims[ww] = sim
+            #if sim > 0.0:
+            time_sims[year].append((sim, ww))
+            lookups[ww] = embed.represent(word)
+            sims[ww] = sim
 
     print "GET TIME SIMS FOR %s TOOK %s" % (word1, time.time() - start)
     return time_sims, lookups, nearests, sims
@@ -97,6 +97,7 @@ def load_embeddings(filename=None):
             return EMBED_CACHE[filename]
 
         print "THIS MIGHT TAKE A WHILE..."
+
         embeddings = SequentialEmbedding.load(filename, range(1880, 2000, 10))
         print "LOAD EMBEDDINGS TOOK %s" % (time.time() - start)
 
@@ -165,8 +166,7 @@ def plot_words(word1, words, fitted, cmap, sims):
     plt.scatter(fitted[:,0], fitted[:,1], alpha=0)
     plt.suptitle("%s" % word1.capitalize(), fontsize=30, y=0.1)
     plt.axis('off')
-    fig.colorbar(mappable=plt.cm.get_cmap(
-    'magma_r'),location='right',orientation='vertical',ticks=[(int(i) - 1880)/ 10 for i in range(1880, 2000, 10)] )
+
     annotations = []
     isArray = type(word1) == list
     for i in xrange(len(words)):
@@ -175,7 +175,7 @@ def plot_words(word1, words, fitted, cmap, sims):
         ww,decade = [w.strip() for w in words[i].split("|")]
         color = cmap((int(decade) - 1880) / 10 + CMAP_MIN)
         word = ww
-        sizing = sims[words[i]] * 30
+        sizing = sims[words[i]] * 40
 
         # word1 is the word we are plotting against
         if ww == word1 or (isArray and ww in word1):
@@ -184,7 +184,7 @@ def plot_words(word1, words, fitted, cmap, sims):
             color = 'black'
             sizing = 20
             
-        
+
 
         plt.text(pt[0], pt[1], word, color=color, size=int(sizing),verticalalignment='center',horizontalalignment='center')
 

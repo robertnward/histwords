@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
         if annotations:
             helpers.plot_annotations(annotations)
+        plt.legend()
 
         helpers.savefig("%s_annotated" % word1)
         for year, sim in time_sims.iteritems():
